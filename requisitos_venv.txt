@@ -1,0 +1,6 @@
+django
+django-bootstrap-v5
+daphne
+channels
+channels_redis
+

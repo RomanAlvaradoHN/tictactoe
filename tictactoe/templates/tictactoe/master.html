@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="#" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'tictactoe/css/master.css' %}">
+    {% block estilo %}{%endblock%}
+    <!--modulo bootstrap v5-->
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    
+    <title>Grupo1 X-0</title>
+</head>
+
+
+
+<body class="container bg-dark">
+    {% block content %}
+    {% endblock %}
+</body>
+
+
+
+{% block javascript %}
+    {% endblock%}
+</html>
