@@ -33,13 +33,22 @@ let myturn = true;
 
 
 
-
+document.getElementById('input_text').addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter'){
+        e.preventDefault();
+        document.getElementById('btn_enviar').click();
+    }
+})
 document.getElementById('btn_enviar').addEventListener('click', (e)=>{
-    GS.enviar({
-        'operacion': 'chat.message',
-        'player': document.getElementById("char_choice").value,
-        'message': document.getElementById('input_text').value
-    });
+    if (document.getElementById('input_text').value.trim() !== ''){
+    	GS.enviar({
+        	'operacion': 'chat.message',
+        	'player': document.getElementById("char_choice").value,
+        	'message': document.getElementById('input_text').value
+    	});
+
+	 	document.getElementById('input_text').value = "";
+    }
 })
 
 
@@ -83,7 +92,8 @@ function player_move(square){
             GS.enviar({
                 'operacion': 'player.update',
                 'player': player,
-                'square_id': square_id
+                'square_id': square_id,
+                'contador': moveCount
             });
 
             validarGanador();
@@ -99,6 +109,7 @@ function player_update(resp){
         square.children[0].innerHTML = resp['player'];
         square.setAttribute('item-filled', true);
         
+        moveCount = resp['contador'];
         doTurn();
     }
 }
@@ -149,12 +160,12 @@ function validarGanador(){
     if(ganador){
         GS.enviar({
             'operacion': 'anunciar.ganador',
-            'message': player + ' es el ganador!!!',
+            'message': player + ' es el ganador!!!'
         });
     
-    }else if(moveCount == 5){
+    }else if((moveCount == 9) && (!ganador)){
         GS.enviar({
-            'operacion': 'anunciar.empate',
+            'operacion': 'anunciar.empate'
         });
     }
 }
@@ -243,7 +254,7 @@ function response_handler(resp){
             break;
 
         case "anunciar.empate":
-            if(confirm(resp['message'] + ".\nJugar otra partida?") == true){
+            if(confirm("Es un empate.\nJugar otra partida?") == true){
                 reset();
             }
             break;
