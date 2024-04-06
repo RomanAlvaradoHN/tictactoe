@@ -28,7 +28,6 @@ class GameSocket{
 let GS = new GameSocket();
 newGameBoard();
 let moveCount = 0;
-let accumulator = 0;
 let myturn = true;
 
 
@@ -47,9 +46,9 @@ document.getElementById('btn_enviar').addEventListener('click', (e)=>{
 
 
 function newGameBoard(){
-    for (let index = 3; index <= 27; index += 3) {
+    for (let index = 1; index <= 9; index++) {
         square = document.createElement('div');
-        square.setAttribute('item-id', index);
+        square.setAttribute('id', 'square_' + index);
         square.setAttribute('item-filled', false);
         square.classList.add('square', 'border', 'border-primary')
 
@@ -72,21 +71,23 @@ function player_move(square){
         alert("Espera por el otro jugador")
     
     }else{
-        let player = document.getElementById("char_choice").value;
-        let square_id = square.getAttribute('item-id');
+        if(square.getAttribute('item-filled') == "false"){
+            let player = document.getElementById("char_choice").value;
+            let square_id = square.getAttribute('id');
 
-        square.children[0].innerHTML = player
-        square.setAttribute('item-filled', true);
-        doTurn();
-        moveCount ++;
-        accumulator += square_id;
-        winnerValidation();
-        
-        GS.enviar({
-            'operacion': 'player.update',
-            'player': player,
-            'square_id': square_id
-        });
+            square.children[0].innerHTML = player;
+            square.setAttribute('item-filled', true);
+            doTurn();
+            moveCount ++;
+            
+            GS.enviar({
+                'operacion': 'player.update',
+                'player': player,
+                'square_id': square_id
+            });
+
+            validarGanador();
+        }
     }
 }
 
@@ -94,14 +95,10 @@ function player_move(square){
 function player_update(resp){
     if(resp['player'] != document.getElementById("char_choice").value){
         
-        document.querySelectorAll('.square').forEach((item)=>{
-            
-            if(item.getAttribute('item-id') == resp['square_id']){
-                item.children[0].innerHTML = resp['player'];
-                item.setAttribute('item-filled', true);
-            }
-
-        });
+        square = document.getElementById(resp['square_id']);
+        square.children[0].innerHTML = resp['player'];
+        square.setAttribute('item-filled', true);
+        
         doTurn();
     }
 }
@@ -120,94 +117,53 @@ function doTurn(){
 
 
 
-function winnerValidation(){
-    if(moveCount == 3){
-        if((accumulator % 9) == 0){
-            //ganador
-        }
-    }else if(moveCount > 3){
-        if((accumulator % 3) == 0){
-            //ganador
-        }
-    }
-}
+function validarGanador(){
+    let player = document.getElementById("char_choice").value;
+    let ganador = false;
 
-
-
-
-function make_move(index, player){
-    index = parseInt(index);
-    let data = {
-        "operacion": "oper.move",
-        "message": {
-            "index": index,
-            "player": player
-        }
-    }
+    //Posibles combinaciones para ganar
+    combinaciones = [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9],
+        [1, 4, 7],
+        [2, 5, 8],
+        [3, 6, 9],
+        [1, 5, 9],
+        [3, 5, 7]
+    ]
     
-    if(gameBoard[index] == -1){
-        moveCount++;
-        if(player == 'X')
-            gameBoard[index] = 1;
-        else if(player == 'O')
-            gameBoard[index] = 0;
-        else{
-            alert("Invalid character choice");
-            return false;
-        }
-        GS.enviar(data);
-    }
+    combinaciones.forEach((combinacion)=>{
+        let [a, b, c] = combinacion;
+        
+        a = document.getElementById('square_' + [a]).children[0].innerHTML;
+        b = document.getElementById('square_' + [b]).children[0].innerHTML;
+        c = document.getElementById('square_' + [c]).children[0].innerHTML;
 
-    const win = checkWinner();
-    if(myturn){
-        if(win){
-            data = {
-                "operacion": "oper.end",
-                "message": `${player} es el ganador. Jugar de nuevo?`
-            }
-            GS.enviar(data)
+        if((a + b + c) == (player + player + player)){
+            ganador = true;     
         }
-        else if(!win && moveCount == 9){
-            data = {
-                "operacion": "oper.end",
-                "message": "Es un empate. Jugar de nuevo?"
-            }
-            GS.enviar(data)
-        }
+    });
+
+
+    if(ganador){
+        GS.enviar({
+            'operacion': 'anunciar.ganador',
+            'message': player + ' es el ganador!!!',
+        });
+    
+    }else if(moveCount == 5){
+        GS.enviar({
+            'operacion': 'anunciar.empate',
+        });
     }
 }
 
 
-function checkWinner(){
-    let win = false;
-    if (moveCount >= 5) {
-      winIndices.forEach((w) => {
-        if (check(w)) {
-          win = true;
-          windex = w;
-        }
-      });
-    }
-    return win;
-}
 
-const check = (winIndex) => {
-    if (
-      gameBoard[winIndex[0]] !== -1 &&
-      gameBoard[winIndex[0]] === gameBoard[winIndex[1]] &&
-      gameBoard[winIndex[0]] === gameBoard[winIndex[2]]
-    )   return true;
-    return false;
-};
 
 
 function reset(){
-    gameBoard = [
-        -1, -1, -1,
-        -1, -1, -1,
-        -1, -1, -1,
-    ]; 
-    
     moveCount = 0;
     
     marca = document.getElementById("char_choice").value;
@@ -219,30 +175,13 @@ function reset(){
         document.getElementById("alert_move").style.display = 'none';
     }
     
-    cuadros = document.querySelectorAll('.square > p');
-    cuadros.forEach((item)=>{
-        item.innerHTML = "";
-    })
+    document.querySelectorAll('.square').forEach((item)=>{
+        item.children[0].innerHTML = "";
+        item.setAttribute('item-filled', false);
+    });
 }
 
 
-function updateGameBoard(index, player){
-    if(player == 'X'){
-        gameBoard[index] = 1;
-    
-    }else if(player == 'O'){
-        gameBoard[index] = 0;
-    }
-
-    cuadros = document.querySelectorAll('.square')
-    cuadros.forEach((item)=>{
-        if(item.getAttribute('data-index') == index){
-            item.children[0].innerHTML = player;
-        }
-    })
-
-    doTurn();
-}
 
 
 
@@ -297,21 +236,18 @@ function response_handler(resp){
             break;
 
 
-        case "oper.end":
-            alert(resp['message']);
-            reset();
-            break;
-
-
-        case "oper.move":
-            index = resp['message']['index'];
-            player = resp['message']['player'];
-
-            if(player != document.getElementById("char_choice").value){
-                make_move(index, player)
+        case "anunciar.ganador":
+            if(confirm(resp['message'] + ".\nJugar otra partida?") == true){
+                reset();
             }
-            
             break;
+
+        case "anunciar.empate":
+            if(confirm(resp['message'] + ".\nJugar otra partida?") == true){
+                reset();
+            }
+            break;
+
 
         case 'chat.message':
             chat_message(resp);

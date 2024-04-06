@@ -65,7 +65,7 @@ class NuevaSala(AsyncJsonWebsocketConsumer):
     async def player_update(self, request):
         await self.send_json(request['content'])
 
-    async def oper_end(self, request):
+    async def anunciar_ganador(self, request):
         await self.send_json(request['content'])
 
     async def chat_message(self, request):
