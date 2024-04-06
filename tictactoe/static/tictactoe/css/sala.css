@@ -1,13 +1,41 @@
-.grilla {
+#game_board {
     display: grid;
-    grid-template-rows: 100px 100px 100px; 
-    grid-template-columns: 100px 100px 100px;
-    column-gap: 10px;
-    row-gap: 10px;
+    grid-gap: 0.5em;
+    grid-template-columns: repeat(3, 1fr);
+    width: 16em;
+    height: auto;
+    margin: 0.5em 0;
+    padding: auto;
+    margin: 10px;
 }
 
-.cuadro{
+.square{
+    padding: auto;
+    width: 5em;
+    height: 5em;
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
+    border-radius: 0.5em;
+}
+
+
+.marca{
+    color: white;
+    font-size: 4em;
+    font-weight: bolder;
+}
+
+#alert_move{
+    color: white;
+}
+
+
+
+#chat-log{
+    overflow-y: auto;
+}
+
+.chat-bubble{
+    max-width: 85%;
 }

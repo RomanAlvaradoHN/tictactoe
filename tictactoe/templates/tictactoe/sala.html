@@ -6,29 +6,48 @@
 {% endblock%}
 
 
+
+
+
 {% block content %}
-{{ sala_info|json_script:"sala_info" }}
+<input type="hidden" id="room_code" value="{{sala_id}}">
+<input type="hidden" id="char_choice" value="">
 
 <div class="row">
-    <div class="col-md-6 border border-primary rounded-end text-center p-5 full-height w-50" id="game-section">
+    <div class="col-md-6 border border-primary rounded-end text-center p-1 w-50 full-height d-flex flex-column" id="game-section">
+        <p class="fs-1 text-primary">GAME AREA</p>
         
-        <div class="grilla" id="grilla">
+        <div id="game_board_container">
+            <div id="game_board" class="mx-auto">
+            </div>
+            <p class="mx-auto" id="alert_move">Tu turno, por favor mueve</p>
         </div>
 
+        <div class="estadisticas">
+            <div class="text-white fs-1" id="marca"></div>
+        </div>
+        
     </div>
 
-    <div class="col-md-6 border border-primary rounded-end text-center p-5 full-height w-50" id="chat-section">
-        <div id="chat-log">
+    <div class="col-md-6 border border-primary rounded-end text-center p-1 w-50 full-height d-flex flex-column" id="chat-section">
+        <p class="fs-1 text-primary">CHAT AREA</p>
 
+        <div class="flex-grow-1 p-3" id="chat-log">
         </div>
 
-        <div class="input-group mb-3">
-            <input type="text" class="form-control" aria-label="Recipient's username" aria-describedby="button-addon2">
-            <button class="btn btn-outline-secondary" type="button" id="button-addon2">Enviar</button>
+        <div class="input-group p-4">
+            <textarea class="form-control" id="input_text"></textarea>
+            <button class="btn btn-outline-primary" type="button" id="btn_enviar">Enviar</button>
         </div>
+        
     </div>
 </div>
 {% endblock content %}
+
+
+
+
+
 
 {% block javascript %}
 <script src="{% static 'tictactoe/js/game2.js' %}"></script>
